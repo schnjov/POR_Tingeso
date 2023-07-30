@@ -6,7 +6,7 @@ spring:
       server:
         git:
           default-label: main
-          uri: https://github.com/schnjov/config-service
-          search-paths: src/main/resources/config-data
+          uri: https://github.com/schnjov/POR_Tingeso.git
+          search-paths: config-service/src/main/resources/config-data
   application:
     name: config-service

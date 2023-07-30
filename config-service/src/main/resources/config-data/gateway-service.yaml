@@ -17,7 +17,7 @@ spring:
         - id: gestion-entradas-service
           uri: http://localhost:8082  # Ruta directa al servicio de gestion de entradas
           predicates:
-            - Path=/entradas/**
+            - Path=/entrada/**
         - id: gestion-salidas-service
           uri: http://localhost:8083  # Ruta directa al servicio de gestion de salidas
           predicates:

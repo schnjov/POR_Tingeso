@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface EntradaRepository extends JpaRepository<EntradaEntity, Long> {
-    List<EntradaEntity> findByFechaBetween(String fecha1, String fecha2);
+    List<EntradaEntity> findByFechaBetweenOrderByFecha(String fecha1, String fecha2);
 }

@@ -25,6 +25,12 @@ public class EntradaService {
     }
 
     public List<EntradaEntity> getEntradasEntreFechas(String fecha1, String fecha2){
-        return entradaRepository.findByFechaBetween(fecha1, fecha2);
+        return entradaRepository.findByFechaBetweenOrderByFecha(fecha1, fecha2);
+    }
+
+    public EntradaEntity createEntradaAutoDate(EntradaEntity entrada) {
+        //Se setea la fecha con la fecha actual del sistema en formato dd-MM-yyyy
+        entrada.setFecha(java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        return entradaRepository.save(entrada);
     }
 }

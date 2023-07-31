@@ -1,6 +1,7 @@
 package cl.usach.tingeso.resumenservice.Controller;
 
 import cl.usach.tingeso.resumenservice.Models.EntradaModel;
+import cl.usach.tingeso.resumenservice.Models.POJO.ResumenResponse;
 import cl.usach.tingeso.resumenservice.Models.POJO.TransaccionPOJO;
 import cl.usach.tingeso.resumenservice.Models.SalidaModel;
 import cl.usach.tingeso.resumenservice.Services.ResumenService;
@@ -20,20 +21,17 @@ public class ResumenController {
     private ResumenService resumenService;
 
     @GetMapping("/generar")
-    public ResponseEntity<List<TransaccionPOJO>> generarResumen(
+    public ResponseEntity<ResumenResponse> generarResumen(
             @RequestParam(value = "fechaInicio") String fechaInicio,
             @RequestParam(value = "fechaFin") String fechaFin) {
         try {
-            List<TransaccionPOJO> resumen = resumenService.generarResumen(fechaInicio, fechaFin);
-            if (resumen != null && !resumen.isEmpty()) {
-                return ResponseEntity.ok(resumen);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            ResumenResponse response = resumenService.generarResumen(fechaInicio, fechaFin);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(400).build();
         }
     }
+
 }
 

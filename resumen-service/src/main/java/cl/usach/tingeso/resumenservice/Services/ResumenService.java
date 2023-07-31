@@ -1,6 +1,7 @@
 package cl.usach.tingeso.resumenservice.Services;
 
 import cl.usach.tingeso.resumenservice.Models.EntradaModel;
+import cl.usach.tingeso.resumenservice.Models.POJO.ResumenResponse;
 import cl.usach.tingeso.resumenservice.Models.POJO.TransaccionPOJO;
 import cl.usach.tingeso.resumenservice.Models.SalidaModel;
 import cl.usach.tingeso.resumenservice.Services.Factory.TransactionFactory;
@@ -84,11 +85,22 @@ public class ResumenService {
         }
     }
 
-    public List<TransaccionPOJO> generarResumen(String fechaInicio, String fechaFin) {
+    public ResumenResponse generarResumen(String fechaInicio, String fechaFin) {
         try {
             List<EntradaModel> entradas = getEntradasBetweenDates(fechaInicio, fechaFin);
             List<SalidaModel> salidas = getSalidasBetweenDates(fechaInicio, fechaFin);
-            return calcularTransacciones(entradas, salidas);
+            List<TransaccionPOJO> resumen = calcularTransacciones(entradas, salidas);
+            Long ingresos = 0L;
+            Long egresos = 0L;
+            for (TransaccionPOJO transaccion : resumen) {
+                if (transaccion.getTipoTransaccion() == 1) {
+                    ingresos += transaccion.getMonto();
+                } else {
+                    egresos += transaccion.getMonto();
+                }
+            }
+
+            return new ResumenResponse(resumen, ingresos, egresos);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -103,56 +115,44 @@ public class ResumenService {
         while (idxEntrada < entradas.size() || idxSalida < salidas.size()) {
             if (idxEntrada < entradas.size() && idxSalida < salidas.size()) {
                 if (DateComparator.isFirstDateBeforeSecond(entradas.get(idxEntrada).getFecha(), salidas.get(idxSalida).getFecha())) {
-                    Long saldo;
-                    if (transacciones.size() > 0) {
-                        saldo = transacciones.get(transacciones.size() - 1).getSaldo();
-                        saldo = saldo + entradas.get(idxEntrada).getMonto();
-                    } else {
-                        saldo = entradas.get(idxEntrada).getMonto();
-                    }
-                    transacciones.add(TransactionFactory.build(1, entradas.get(idxEntrada).getFecha(), 0,
-                            entradas.get(idxEntrada).getNumeroRecibo(), "Ingreso a Caja", entradas.get(idxEntrada).getMonto(), saldo));
-                    logger.info(transacciones.get(transacciones.size() - 1).toString());
+                    generarTransaccionEntrada(transacciones, entradas.get(idxEntrada));
                     idxEntrada++;
                 } else {
-                    Long saldo;
-                    if (transacciones.size() > 0) {
-                        saldo = transacciones.get(transacciones.size() - 1).getSaldo();
-                        saldo = saldo - salidas.get(idxSalida).getMonto();
-                    } else {
-                        saldo = -(salidas.get(idxSalida).getMonto());
-                    }
-                    transacciones.add(TransactionFactory.build(2, salidas.get(idxSalida).getFecha(), salidas.get(idxSalida).getTipoDocumento(),
-                            salidas.get(idxSalida).getNumeroDocumento(), salidas.get(idxSalida).getMotivoSalida(), salidas.get(idxSalida).getMonto(), saldo));
-                    logger.info(transacciones.get(transacciones.size() - 1).toString());
+                    generarTransaccionSalida(transacciones, salidas.get(idxSalida));
                     idxSalida++;
                 }
             } else if (idxEntrada < entradas.size()) {
-                Long saldo;
-                if (transacciones.size() > 0) {
-                    saldo = transacciones.get(transacciones.size() - 1).getSaldo();
-                    saldo = saldo + entradas.get(idxEntrada).getMonto();
-                } else {
-                    saldo = entradas.get(idxEntrada).getMonto();
-                }
-                transacciones.add(TransactionFactory.build(1, entradas.get(idxEntrada).getFecha(), 0,
-                        entradas.get(idxEntrada).getNumeroRecibo(), "Ingreso a Caja", entradas.get(idxEntrada).getMonto(), saldo));
-                logger.info(transacciones.get(transacciones.size() - 1).toString());
+                generarTransaccionEntrada(transacciones, entradas.get(idxEntrada));
                 idxEntrada++;
             } else if (idxSalida < salidas.size()) {
-                Long saldo;
-                if (transacciones.size() > 0) {
-                    saldo = transacciones.get(transacciones.size() - 1).getSaldo();
-                    saldo = saldo - salidas.get(idxSalida).getMonto();
-                } else {
-                    saldo = -(salidas.get(idxSalida).getMonto());
-                }
-                transacciones.add(TransactionFactory.build(2, salidas.get(idxSalida).getFecha(), salidas.get(idxSalida).getTipoDocumento(),
-                        salidas.get(idxSalida).getNumeroDocumento(), salidas.get(idxSalida).getMotivoSalida(), salidas.get(idxSalida).getMonto(), saldo));
-                logger.info(transacciones.get(transacciones.size() - 1).toString());
+                generarTransaccionSalida(transacciones, salidas.get(idxSalida));
                 idxSalida++;
             }
         }
+
         return transacciones;
     }
+
+    private void generarTransaccionEntrada(List<TransaccionPOJO> transacciones, EntradaModel entrada) {
+        Long saldo = 0L;
+        if (!transacciones.isEmpty()) {
+            saldo = transacciones.get(transacciones.size() - 1).getSaldo();
+        }
+        saldo += entrada.getMonto();
+        transacciones.add(TransactionFactory.build(1, entrada.getFecha(), 0,
+                entrada.getNumeroRecibo(), "Ingreso a Caja", entrada.getMonto(), saldo));
+        logger.info(transacciones.get(transacciones.size() - 1).toString());
+    }
+
+    private void generarTransaccionSalida(List<TransaccionPOJO> transacciones, SalidaModel salida) {
+        Long saldo = 0L;
+        if (!transacciones.isEmpty()) {
+            saldo = transacciones.get(transacciones.size() - 1).getSaldo();
+        }
+        saldo -= salida.getMonto();
+        transacciones.add(TransactionFactory.build(2, salida.getFecha(), salida.getTipoDocumento(),
+                salida.getNumeroDocumento(), salida.getMotivoSalida(), salida.getMonto(), saldo));
+        logger.info(transacciones.get(transacciones.size() - 1).toString());
+    }
+
 }

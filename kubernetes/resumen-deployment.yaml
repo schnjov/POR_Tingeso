@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resumen-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: resumen-service
+  template:
+    metadata:
+      labels:
+        app: resumen-service
+    spec:
+      containers:
+        - name: resumen-service
+          image: gcr.io/por-tingeso/resumen-service
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://config-service:8081

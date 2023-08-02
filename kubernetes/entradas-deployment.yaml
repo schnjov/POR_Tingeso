@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: entradas-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: entradas
+  template:
+    metadata:
+      labels:
+        app: entradas
+    spec:
+      containers:
+        - name: entradas
+          image: gcr.io/por-tingeso/gestion-entradas-service
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://config-service:8081
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-deployment-service:5432/entradas?autoReconnect=true&useSSL=false" # Agregamos el puerto específico del servicio de base de datos
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres

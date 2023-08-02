@@ -60,6 +60,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>resumen-service</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: salidas-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: salidas
+  template:
+    metadata:
+      labels:
+        app: salidas
+    spec:
+      containers:
+        - name: salidas
+          image: gcr.io/por-tingeso/gestion-salidas-service
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_CLOUD_CONFIG_URI
+              value: http://config-service:8081
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-deployment-service:5432/salidas?autoReconnect=true&useSSL=false" # Agregamos el puerto específico del servicio de base de datos
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres

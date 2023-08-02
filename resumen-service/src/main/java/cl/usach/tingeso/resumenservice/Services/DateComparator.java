@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 public class DateComparator {
 
     public static boolean isFirstDateBeforeSecond(String dateStr1, String dateStr2) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate date1 = LocalDate.parse(dateStr1, formatter);
         LocalDate date2 = LocalDate.parse(dateStr2, formatter);
 

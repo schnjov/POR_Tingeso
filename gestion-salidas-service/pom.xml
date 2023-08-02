@@ -65,6 +65,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>gestion-salidas-service</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

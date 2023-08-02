@@ -8,6 +8,8 @@ import cl.usach.tingeso.resumenservice.Services.Factory.TransactionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
@@ -20,10 +22,12 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@Configuration
 public class ResumenService {
     @Autowired
     private RestTemplate restTemplate;
-    private final String BASE_URL = "http://localhost:8080";
+    @Value("${base.url}")
+    private String BASE_URL;
 
     private final Logger logger = LoggerFactory.getLogger(ResumenService.class);
 
@@ -36,9 +40,8 @@ public class ResumenService {
             logger.info("Fecha inicio: " + dateFormat.format(dateFechaInicio));
             logger.info("Fecha fin: " + dateFormat.format(dateFechaFin));
             // Construir la URL con los parámetros de consulta
-            String url = BASE_URL + "/entrada/between?fechaInicio=" + dateFormat.format(dateFechaInicio)
+            String url = "http://34.95.244.48:8082/entrada/between?fechaInicio=" + dateFormat.format(dateFechaInicio)
                     + "&fechaFin=" + dateFormat.format(dateFechaFin);
-
             logger.info("URL: " + url);
 
             // Realizar la solicitud HTTP GET y obtener la lista de EntradaModel
@@ -65,7 +68,7 @@ public class ResumenService {
             logger.info("Fecha inicio: " + dateFormat.format(dateFechaInicio));
             logger.info("Fecha fin: " + dateFormat.format(dateFechaFin));
             // Construir la URL con los parámetros de consulta
-            String url = BASE_URL + "/salidas/between?fechaInicio=" + dateFormat.format(dateFechaInicio)
+            String url ="http://34.95.179.207:8083/salidas/between?fechaInicio=" + dateFormat.format(dateFechaInicio)
                     + "&fechaFin=" + dateFormat.format(dateFechaFin);
 
             logger.info("URL: " + url);
@@ -86,10 +89,12 @@ public class ResumenService {
     }
 
     public ResumenResponse generarResumen(String fechaInicio, String fechaFin) {
+        logger.info("Generando resumen entre fechas " + fechaInicio + " y " + fechaFin);
         try {
             List<EntradaModel> entradas = getEntradasBetweenDates(fechaInicio, fechaFin);
             List<SalidaModel> salidas = getSalidasBetweenDates(fechaInicio, fechaFin);
             List<TransaccionPOJO> resumen = calcularTransacciones(entradas, salidas);
+            logger.info("RESUMEN GENERADO");
             Long ingresos = 0L;
             Long egresos = 0L;
             for (TransaccionPOJO transaccion : resumen) {

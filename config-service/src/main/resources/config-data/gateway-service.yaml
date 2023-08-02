@@ -15,14 +15,14 @@ spring:
             allow-credentials: true
       routes:
         - id: gestion-entradas-service
-          uri: http://localhost:8082/  # Ruta directa al servicio de gestion de entradas
+          uri: 34.95.244.48:8082/  # Ruta directa al servicio de gestion de entradas
           predicates:
             - Path=/entrada/**
         - id: gestion-salidas-service
-          uri: http://localhost:8083/  # Ruta directa al servicio de gestion de salidas
+          uri: 34.95.179.207:8083/  # Ruta directa al servicio de gestion de salidas
           predicates:
             - Path=/salidas/**
         - id: resumen-service
-          uri: http://localhost:8084/  # Ruta directa al servicio de resumen
+          uri:   # Ruta directa al servicio de resumen
           predicates:
             - Path=/resumen/**
